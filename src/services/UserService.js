@@ -142,6 +142,20 @@ const getAllUsers = async () => {
         throw new Error('Error fetching users');
     }
 };
+const searchUsersByName = async (name) => {
+    if (!name) {
+        throw new Error('Tên không được để trống');
+    }
+
+    // Tạo biểu thức chính quy để tìm kiếm không phân biệt chữ hoa chữ thường
+    const regex = new RegExp(name.split('').join('.*'), 'i');
+    try {
+        const users = await User.find({ name: { $regex: regex } }).exec();
+        return users;
+    } catch (error) {
+        throw new Error('Lỗi khi tìm kiếm người dùng');
+    }
+};
 
 module.exports = {
     createUser,
@@ -150,5 +164,6 @@ module.exports = {
     getUser,
     uploadUserAvatar,
     getAllUsers,
-    updateUserPoints
+    updateUserPoints,
+    searchUsersByName
 };

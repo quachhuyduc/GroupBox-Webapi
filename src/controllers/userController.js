@@ -1,3 +1,4 @@
+const User = require('../models/user');
 const userService = require('../services/UserService');
 
 const createUser = async (req, res) => {
@@ -46,12 +47,33 @@ const updateUserAvatar = async (req, res) => {
 const updateUserPoints = async (req, res) => {
     const { userId, points } = req.body;
     try {
-        const updatedUser = await userService.updateUserPoints(userId, points);
-        res.status(200).json({ status: 'OK', data: updatedUser });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'Người dùng không tồn tại' });
+        }
+
+        // Kiểm tra kiểu dữ liệu của điểm
+        if (typeof user.pointday !== 'number') {
+            return res.status(400).json({ message: 'Điểm không hợp lệ' });
+        }
+
+        console.log(`User ID: ${userId}, Current Points: ${user.pointday}, Points to Add: ${points}`);
+
+        // Cộng điểm
+        user.pointday += points;
+        await user.save();
+
+        console.log(`Updated Points: ${user.pointday}`);
+
+        res.status(200).json({ message: 'Điểm đã được cập nhật thành công', newPoints: user.pointday });
     } catch (error) {
-        res.status(500).json({ status: 'Error', message: error.message });
+        console.error('Lỗi khi cập nhật điểm:', error);
+        res.status(500).json({ message: 'Lỗi khi cập nhật điểm', error });
     }
 };
+
+
+
 
 
 const getUser = async (req, res) => {
@@ -71,8 +93,16 @@ const getUserList = async (req, res) => {
         res.status(500).json({ status: 'ERR', message: 'Failed to fetch users' });
     }
 };
+const searchUsers = async (req, res) => {
+    const { name } = req.params;
 
-
+    try {
+        const users = await userService.searchUsersByName(name);
+        res.json({ status: 'OK', data: users });
+    } catch (error) {
+        res.status(500).json({ status: 'ERROR', message: error.message });
+    }
+};
 
 
 module.exports = {
@@ -82,5 +112,6 @@ module.exports = {
     getUser,
     updateUserAvatar,
     getUserList,
-    updateUserPoints
+    updateUserPoints,
+    searchUsers
 };

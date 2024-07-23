@@ -5,9 +5,8 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const routes = require('./routes');
 const path = require('path');
-const fs = require('fs');
-
-// Load biến môi trường từ file .env
+const changeStream = require('./services/changeStream');
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 dotenv.config();
 
 // Khởi tạo Express app
@@ -39,11 +38,14 @@ app.get('/api/users/:userId', (req, res) => {
 
 // Kết nối tới MongoDB bằng mongoose
 mongoose.connect(`mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@${process.env.MONGO_DB_CLUSTER}/${process.env.MONGO_DB_NAME}`, {
+    tls: true,
+    tlsAllowInvalidCertificates: true, // Bỏ qua chứng chỉ không hợp lệ
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
     .then(() => {
         console.log('Connected to MongoDB');
+        changeStream();
     })
     .catch((err) => {
         console.error('Error connecting to MongoDB:', err.message);
@@ -62,3 +64,4 @@ app.use((err, req, res, next) => {
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });
+

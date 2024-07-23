@@ -9,7 +9,11 @@ const router = express.Router();
 router.post('/tasks', taskController.createTask);
 router.get('/listTasks', taskController.getTaskList);
 router.get('/tasks/:name', taskController.getTaskByName);
-router.get('/:taskId', taskController.getTaskById); // Sử dụng prefix '/tasks' cho route '/:taskId'
+router.get('/:taskId', taskController.getTaskById);
+router.get('/search/:partialName', taskController.searchTasksByName);
+router.post('/add', taskController.addTaskToList);
+router.get('/userTasks/:userId', taskController.getUserTasks);
+// Sử dụng prefix '/tasks' cho route '/:taskId'
 // Sử dụng prefix '/tasks' cho route '/list'
 
 module.exports = router;

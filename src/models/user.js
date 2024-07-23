@@ -9,7 +9,9 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     pointday: { type: Number, default: 0 },
-    pointweek: { type: Number, default: 0 }
+    pointweek: { type: Number, default: 0 },
+    rank: { type: Number, default: 0 },
+    taskList: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Task' }]
 });
 
 const User = mongoose.model('User', userSchema);

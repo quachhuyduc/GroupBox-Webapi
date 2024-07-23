@@ -40,11 +40,26 @@ const getAllTask = async () => {
         throw new Error('Error fetching tasks');
     }
 };
-
+const searchTasksByName = async (partialName) => {
+    try {
+        // Sử dụng regex để tìm kiếm gần đúng
+        const regex = new RegExp(partialName, 'i'); // 'i' để không phân biệt hoa thường
+        const tasks = await Task.find({ nameTask: { $regex: regex } });
+        return {
+            status: 'OK',
+            message: 'Tasks found successfully',
+            data: tasks
+        };
+    } catch (error) {
+        console.error('Error searching tasks by name:', error);
+        throw new Error('Error searching tasks');
+    }
+};
 
 module.exports = {
     createTask,
     getTaskByName,
     getTaskById,
-    getAllTask
+    getAllTask,
+    searchTasksByName
 };

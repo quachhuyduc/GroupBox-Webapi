@@ -40,5 +40,7 @@ router.get('/listUsers', userController.getUserList);
 router.post('/register', userController.createUser);
 router.post('/login', userController.loginUser);
 router.get('/:userId', userController.getUser);
+router.get('/search/:name', userController.searchUsers);
+router.put('/:userId', userController.updateUser);
 
 module.exports = router;
