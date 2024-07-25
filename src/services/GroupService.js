@@ -2,42 +2,99 @@
 const Group = require('../models/group');
 
 // Tạo mới nhóm
-async function createGroup(name, description, members) {
+const createGroup = async (name, description, adminId) => {
+    const group = new Group({
+        name,
+        description,
+        admin: adminId, // Đặt người tạo làm quản trị viên
+        members: [adminId] // Thêm quản trị viên vào danh sách thành viên
+    });
+    return await group.save();
+};
+const getGroupForMember = async (groupId, userId) => {
     try {
-        const newGroup = new Group({
-            name,
-            description,
-            members
-        });
-        const savedGroup = await newGroup.save();
-        return savedGroup;
-    } catch (error) {
-        throw Error('Error creating group');
-    }
-}
+        const group = await Group.findById(groupId).populate('members', 'username email age');
 
-// Lấy thông tin nhóm theo ID
-async function getGroupById(groupId) {
-    try {
-        const group = await Group.findById(groupId).populate('members', 'username email age'); // Populate members from User collection
         if (!group) {
             return {
                 status: 'ERR',
-                message: 'group not found'
+                message: 'Group not found'
+            };
+        }
+
+        if (!group.members.some(member => member._id.toString() === userId.toString())) {
+            return {
+                status: 'ERR',
+                message: 'Access denied'
             };
         }
 
         return {
             status: 'OK',
-            message: 'task fetched successfully',
+            message: 'Group fetched successfully',
             data: group
         };
     } catch (error) {
-        throw Error('Error fetching group by ID');
+        throw new Error('Error fetching group for member');
+    }
+};
+// Thêm member vào nhóm
+async function addMemberToGroup(groupId, userId) {
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            throw Error('Group not found');
+        }
+
+        if (!group.members.includes(userId)) {
+            group.members.push(userId);
+            await group.save();
+        }
+
+        return group;
+    } catch (error) {
+        throw Error('Error adding member to group');
+    }
+}
+const getGroupMembers = async (groupId) => {
+    try {
+        const group = await Group.findById(groupId).populate('members'); // Lấy thông tin thành viên từ ID
+        if (!group) {
+            throw new Error('Group not found');
+        }
+        return group.members;
+    } catch (error) {
+        throw new Error(error.message);
+    }
+};
+const removeMemberFromGroup = async (groupId, userId, adminId) => {
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            throw new Error('Group not found');
+        }
+
+        if (group.admin.toString() !== adminId.toString()) {
+            throw new Error('Unauthorized');
+        }
+
+        if (group.members.includes(userId)) {
+            group.members = group.members.filter(member => member.toString() !== userId);
+            await group.save();
+        }
+
+        return group;
+    } catch (error) {
+        throw new Error(error.message);
     }
 }
 
+
+
 module.exports = {
     createGroup,
-    getGroupById
+    addMemberToGroup,
+    getGroupMembers,
+    getGroupForMember,
+    removeMemberFromGroup
 };
