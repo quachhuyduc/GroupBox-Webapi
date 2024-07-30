@@ -4,9 +4,9 @@ const groupService = require('../services/GroupService');
 
 // Controller để tạo mới nhóm
 const createGroup = async (req, res) => {
-    const { name, description, members } = req.body;
+    const { name } = req.body;
     try {
-        const newGroup = await groupService.createGroup(name, description, members);
+        const newGroup = await groupService.createGroup(name);
         res.status(201).json(newGroup);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -105,13 +105,66 @@ const getGroupList = async (req, res) => {
         res.status(500).json({ status: 'ERR', message: 'Failed to fetch tasks' });
     }
 };
+const getGroupById = async (req, res) => {
+    try {
+        const groupId = req.params.groupId; // Corrected variable name from 'userId' to 'taskId'
+        const group = await groupService.getGroupById(groupId);
+        if (!group || group.status === 'ERR') { // Check if task is not found or error status
+            return res.status(404).json({ status: 'ERROR', message: 'group not found' });
+        }
+        res.status(200).json({ status: 'OK', data: group });
+    } catch (error) {
+        console.error('Error fetching group:', error.message);
+        res.status(500).json({ status: 'ERROR', message: error.message });
+    }
+};
+const updateGroup = async (req, res) => {
+    const groupId = req.params.groupId;
+    const { name } = req.body;
 
+    if (!name) {
+        return res.status(400).json({ status: 'ERROR', message: 'Không có dữ liệu để cập nhật' });
+    }
 
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ status: 'ERROR', message: 'Nhóm không tồn tại' });
+        }
+
+        // Cập nhật thông tin nhóm
+        if (name) group.name = name;
+        await group.save();
+        res.json({ status: 'OK', message: 'Nhóm đã được cập nhật thành công', data: group });
+    } catch (error) {
+        console.error('Lỗi khi cập nhật nhóm:', error);
+        res.status(500).json({ status: 'ERROR', message: 'Lỗi khi cập nhật nhóm' });
+    }
+};
+const deleteGroup = async (req, res) => {
+    const groupId = req.params.groupId;
+
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return res.status(404).json({ status: 'ERROR', message: 'Nhóm không tồn tại' });
+        }
+
+        await Group.findByIdAndDelete(groupId);
+        res.json({ status: 'OK', message: 'Nhóm đã được xóa thành công' });
+    } catch (error) {
+        console.error('Lỗi khi xóa nhóm:', error);
+        res.status(500).json({ status: 'ERROR', message: 'Lỗi khi xóa nhóm' });
+    }
+};
 module.exports = {
     createGroup,
     getGroupForMember,
     addMember,
     getGroupMembers,
     removeMember,
-    getGroupList
+    getGroupList,
+    getGroupById,
+    updateGroup,
+    deleteGroup
 };

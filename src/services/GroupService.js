@@ -2,12 +2,9 @@
 const Group = require('../models/group');
 
 // Tạo mới nhóm
-const createGroup = async (name, description, adminId) => {
+const createGroup = async (name) => {
     const group = new Group({
-        name,
-        description,
-        admin: adminId, // Đặt người tạo làm quản trị viên
-        members: [adminId] // Thêm quản trị viên vào danh sách thành viên
+        name
     });
     return await group.save();
 };
@@ -101,6 +98,25 @@ const getAllGroup = async () => {
         throw new Error('Error fetching Group');
     }
 };
+const getGroupById = async (groupId) => {
+    try {
+        const group = await Group.findById(groupId);
+        if (!group) {
+            return {
+                status: 'ERR',
+                message: 'group not found'
+            };
+        }
+
+        return {
+            status: 'OK',
+            message: 'group fetched successfully',
+            data: group
+        };
+    } catch (error) {
+        throw new Error('Server error');
+    }
+};
 
 
 module.exports = {
@@ -109,5 +125,6 @@ module.exports = {
     getGroupMembers,
     getGroupForMember,
     removeMemberFromGroup,
-    getAllGroup
+    getAllGroup,
+    getGroupById
 };
