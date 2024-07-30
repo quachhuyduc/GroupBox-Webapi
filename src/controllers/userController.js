@@ -19,11 +19,16 @@ const loginUser = async (req, res) => {
     }
 };
 
+
 const updateUser = async (req, res) => {
     try {
         const result = await userService.updateUser(req.params.userId, req.body);
+        if (result.status === 'ERR') {
+            return res.status(404).json(result);  // Trả về lỗi 404 nếu người dùng không tìm thấy
+        }
         res.status(200).json(result);
     } catch (error) {
+        console.error('Controller error:', error);
         res.status(500).json({ status: 'ERR', message: 'Server error' });
     }
 };
@@ -103,6 +108,18 @@ const searchUsers = async (req, res) => {
         res.status(500).json({ status: 'ERROR', message: error.message });
     }
 };
+const deleteUser = async (req, res) => {
+    try {
+        const result = await userService.deleteUser(req.params.userId);
+        if (result.status === 'ERR') {
+            return res.status(404).json(result);  // Trả về lỗi 404 nếu người dùng không tìm thấy
+        }
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Controller error:', error);
+        res.status(500).json({ status: 'ERR', message: 'Server error' });
+    }
+};
 
 
 module.exports = {
@@ -113,5 +130,6 @@ module.exports = {
     updateUserAvatar,
     getUserList,
     updateUserPoints,
-    searchUsers
+    searchUsers,
+    deleteUser
 };

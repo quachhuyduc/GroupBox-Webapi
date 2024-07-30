@@ -13,6 +13,10 @@ router.get('/:taskId', taskController.getTaskById);
 router.get('/search/:partialName', taskController.searchTasksByName);
 router.post('/add', taskController.addTaskToList);
 router.get('/userTasks/:userId', taskController.getUserTasks);
+router.get('/category/:category', taskController.getTasksByCategory);
+router.post('/add-question', taskController.addQuestionToTask);
+router.put('/tasks/:taskId', taskController.updateTask);
+router.delete('/delete-task/:taskId', taskController.deleteTask);
 // Sử dụng prefix '/tasks' cho route '/:taskId'
 // Sử dụng prefix '/tasks' cho route '/list'
 

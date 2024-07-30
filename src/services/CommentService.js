@@ -22,8 +22,22 @@ const getCommentsByTaskId = async (taskId) => {
         throw new Error('Error retrieving comments from database');
     }
 };
+const getAllComment = async () => {
+    try {
+        const comments = await Comment.find({})
+        return {
+            status: 'OK',
+            message: 'Comment fetched successfully',
+            data: comments
+        };
+    } catch (error) {
+        console.error('Error fetching Comment:', error);
+        throw new Error('Error fetching Comment');
+    }
+};
 
 module.exports = {
     createComment,
-    getCommentsByTaskId
+    getCommentsByTaskId,
+    getAllComment
 };

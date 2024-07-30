@@ -88,7 +88,19 @@ const removeMemberFromGroup = async (groupId, userId, adminId) => {
         throw new Error(error.message);
     }
 }
-
+const getAllGroup = async () => {
+    try {
+        const groups = await Group.find({})
+        return {
+            status: 'OK',
+            message: 'Group fetched successfully',
+            data: groups
+        };
+    } catch (error) {
+        console.error('Error fetching Group:', error);
+        throw new Error('Error fetching Group');
+    }
+};
 
 
 module.exports = {
@@ -96,5 +108,6 @@ module.exports = {
     addMemberToGroup,
     getGroupMembers,
     getGroupForMember,
-    removeMemberFromGroup
+    removeMemberFromGroup,
+    getAllGroup
 };

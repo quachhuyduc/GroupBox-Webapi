@@ -35,6 +35,16 @@ app.get('/api/users/:userId', (req, res) => {
     res.json(userData);
 });
 
+app.get('/api/collections', async (req, res) => {
+    try {
+        // Lấy danh sách các collection từ MongoDB
+        const collections = await mongoose.connection.db.listCollections().toArray();
+        res.json(collections);
+    } catch (error) {
+        res.status(500).json({ error: 'Có lỗi khi lấy danh sách các collection' });
+    }
+});
+
 
 // Kết nối tới MongoDB bằng mongoose
 mongoose.connect(`mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO_DB_PASSWORD}@${process.env.MONGO_DB_CLUSTER}/${process.env.MONGO_DB_NAME}`, {
@@ -45,7 +55,7 @@ mongoose.connect(`mongodb+srv://${process.env.MONGO_DB_USER}:${process.env.MONGO
 })
     .then(() => {
         console.log('Connected to MongoDB');
-        changeStream();
+        // changeStream();
     })
     .catch((err) => {
         console.error('Error connecting to MongoDB:', err.message);

@@ -96,11 +96,22 @@ const removeMember = async (req, res) => {
         res.status(500).json({ status: 'ERROR', message: 'Lỗi khi xóa thành viên khỏi nhóm' });
     }
 }
+const getGroupList = async (req, res) => {
+    try {
+        const groups = await groupService.getAllGroup();
+        res.status(200).json(groups);
+    } catch (error) {
+        console.error('Error fetching tasks:', error.message);
+        res.status(500).json({ status: 'ERR', message: 'Failed to fetch tasks' });
+    }
+};
+
 
 module.exports = {
     createGroup,
     getGroupForMember,
     addMember,
     getGroupMembers,
-    removeMember
+    removeMember,
+    getGroupList
 };

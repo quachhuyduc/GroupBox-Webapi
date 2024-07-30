@@ -1,7 +1,6 @@
 const User = require("../models/user");
-
 const createUser = async (newUser) => {
-    const { name, email, password, age, avatar, pointday, pointweek } = newUser;
+    const { name, email, password, age } = newUser;
     try {
         const checkUser = await User.findOne({ email: email });
         if (checkUser) {
@@ -11,7 +10,7 @@ const createUser = async (newUser) => {
             };
         }
 
-        const createdUser = await User.create({ name, email, password, age, avatar, pointday, pointweek });
+        const createdUser = await User.create({ name, email, password, age });
         return {
             status: 'OK',
             message: 'SUCCESS',
@@ -60,23 +59,26 @@ const updateUser = async (userId, updateData) => {
                 message: 'User not found'
             };
         }
+
+        // Cập nhật các trường
         if (updateData.name) user.name = updateData.name;
         if (updateData.email) user.email = updateData.email;
-        if (updateData.password) {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(updateData.password, salt);
-        }
-        await user.save();
+        if (updateData.password) user.password = updateData.password;
+
+        if (updateData.age) user.age = updateData.age;
+
+        await user.save();  // Lưu thay đổi
+
         return {
             status: 'OK',
             message: 'User updated successfully',
             data: user
         };
     } catch (error) {
+        console.error('Update user error:', error);
         throw new Error('Server error');
     }
 };
-
 const uploadUserAvatar = async (userId, file) => {
     try {
         const avatarUrl = `uploads/${file.filename}`;
@@ -156,6 +158,24 @@ const searchUsersByName = async (name) => {
         throw new Error('Lỗi khi tìm kiếm người dùng');
     }
 };
+const deleteUser = async (userId) => {
+    try {
+        const result = await User.findByIdAndDelete(userId);
+        if (!result) {
+            return {
+                status: 'ERR',
+                message: 'User not found'
+            };
+        }
+        return {
+            status: 'OK',
+            message: 'User deleted successfully'
+        };
+    } catch (error) {
+        console.error('Delete user error:', error);
+        throw new Error('Server error');
+    }
+};
 
 module.exports = {
     createUser,
@@ -165,5 +185,6 @@ module.exports = {
     uploadUserAvatar,
     getAllUsers,
     updateUserPoints,
-    searchUsersByName
+    searchUsersByName,
+    deleteUser
 };

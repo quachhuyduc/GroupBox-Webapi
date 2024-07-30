@@ -21,8 +21,19 @@ const getCommentsByTaskId = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+const getCommentList = async (req, res) => {
+    try {
+        const comments = await commentService.getAllComment();
+        res.status(200).json(comments);
+    } catch (error) {
+        console.error('Error fetching comments:', error.message);
+        res.status(500).json({ status: 'ERR', message: 'Failed to fetch comments' });
+    }
+};
+
 
 module.exports = {
     createComment,
-    getCommentsByTaskId
+    getCommentsByTaskId,
+    getCommentList
 };

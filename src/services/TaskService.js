@@ -55,11 +55,26 @@ const searchTasksByName = async (partialName) => {
         throw new Error('Error searching tasks');
     }
 };
+const getTasksByCategory = async (category) => {
+    try {
+        const tasks = await Task.find({ category: category });
+        return {
+            status: 'OK',
+            message: 'Tasks found successfully',
+            data: tasks
+        };
+    } catch (error) {
+        console.error('Error fetching tasks by category:', error);
+        throw new Error('Error fetching tasks');
+    }
+};
+
 
 module.exports = {
     createTask,
     getTaskByName,
     getTaskById,
     getAllTask,
-    searchTasksByName
+    searchTasksByName,
+    getTasksByCategory
 };

@@ -1,15 +1,45 @@
 // controllers/taskController.js
 const Task = require('../models/task');
 const User = require('../models/user');
+const Question = require('../models/question');
 const taskService = require('../services/TaskService');
 
 const createTask = async (req, res) => {
     try {
-        const taskData = req.body;
-        const newTask = await taskService.createTask(taskData);
-        res.status(201).json(newTask);
+        const { nameTask, contentTask, requirements, totalPoints, difficulty, category } = req.body;
+
+
+        const newTask = new Task({
+            nameTask,
+            contentTask,
+            requirements,
+            totalPoints,
+            difficulty,
+            category,
+        });
+
+        const savedTask = await newTask.save();
+        res.status(201).json(savedTask);
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ message: error.message });
+    }
+};
+const updateTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const updates = req.body; // Lấy dữ liệu cập nhật từ body
+
+        // Tìm nhiệm vụ theo ID và cập nhật
+        const updatedTask = await Task.findByIdAndUpdate(taskId, updates, { new: true });
+
+        if (!updatedTask) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+
+        res.status(200).json(updatedTask);
+    } catch (error) {
+        console.error('Error updating task:', error.message);
+        res.status(500).json({ message: 'Server error' });
     }
 };
 
@@ -104,7 +134,52 @@ const getUserTasks = async (req, res) => {
 };
 
 
+const getTasksByCategory = async (req, res) => {
+    try {
+        const category = req.params.category;
+        const result = await taskService.getTasksByCategory(category);
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching tasks by category:', error.message);
+        res.status(500).json({ status: 'ERROR', message: error.message });
+    }
+};
+const addQuestionToTask = async (req, res) => {
+    try {
+        const { taskId, questionId } = req.body;
+        const task = await Task.findById(taskId);
+        if (!task) {
+            return res.status(404).json({ message: 'Task not found' });
+        }
+        const question = await Question.findById(questionId);
+        if (!question) {
+            return res.status(404).json({ message: 'Question not found' });
+        }
+        task.questions.push(questionId);
+        await task.save();
+        res.status(200).json(task);
+    } catch (error) {
+        console.error('Add question to task error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
 
+const deleteTask = async (req, res) => {
+    try {
+        const taskId = req.params.taskId;
+        const task = await Task.findById(taskId);
+
+        if (!task) {
+            return res.status(404).json({ status: 'ERROR', message: 'Task not found' });
+        }
+
+        await Task.findByIdAndDelete(taskId);
+        res.status(200).json({ status: 'OK', message: 'Task deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting task:', error.message);
+        res.status(500).json({ status: 'ERROR', message: 'Failed to delete task' });
+    }
+};
 
 
 
@@ -116,5 +191,9 @@ module.exports = {
     getTaskList,
     searchTasksByName,
     addTaskToList,
-    getUserTasks
+    getUserTasks,
+    getTasksByCategory,
+    addQuestionToTask,
+    updateTask,
+    deleteTask
 };

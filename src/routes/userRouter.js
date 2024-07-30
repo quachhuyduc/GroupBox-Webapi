@@ -42,5 +42,6 @@ router.post('/login', userController.loginUser);
 router.get('/:userId', userController.getUser);
 router.get('/search/:name', userController.searchUsers);
 router.put('/:userId', userController.updateUser);
-
+router.post('/create-user', userController.createUser);
+router.delete('/:userId', userController.deleteUser);
 module.exports = router;
